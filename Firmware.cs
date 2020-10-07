@@ -17,13 +17,27 @@ namespace Firmware_Extractor
             switchFs = SwitchFs.OpenNcaDirectory(keyset, baseFs);
             foreach (SwitchFsNca nca in switchFs.Ncas.Values.OrderBy(x => x.Nca.Header.TitleId))
             {
-                if (nca.Nca.Header.ContentType == NcaContentType.Meta)
+                if (NCA.GetName(nca.Nca) != null)
                 {
-                    NCA.ExtractNca(keyset, Path.Combine(path, nca.Filename), Path.Combine("OutFirm", "Meta", nca.Nca.Header.TitleId.ToString("X16")));
+                    if (nca.Nca.Header.ContentType == NcaContentType.Meta)
+                    {
+                        NCA.ExtractNca(keyset, Path.Combine(path, nca.Filename), Path.Combine("OutFirm", "Meta", nca.Nca.Header.TitleId.ToString("X16")  + " - " + NCA.GetName(nca.Nca)));
+                    }
+                    else
+                    {
+                        NCA.ExtractNca(keyset, Path.Combine(path, nca.Filename), Path.Combine("OutFirm", "Program", nca.Nca.Header.TitleId.ToString("X16") + " - " + NCA.GetName(nca.Nca)));
+                    }
                 }
                 else
                 {
-                    NCA.ExtractNca(keyset, Path.Combine(path, nca.Filename), Path.Combine("OutFirm", "Program", nca.Nca.Header.TitleId.ToString("X16")));
+                    if (nca.Nca.Header.ContentType == NcaContentType.Meta)
+                    {
+                        NCA.ExtractNca(keyset, Path.Combine(path, nca.Filename), Path.Combine("OutFirm", "Meta", nca.Nca.Header.TitleId.ToString("X16")));
+                    }
+                    else
+                    {
+                        NCA.ExtractNca(keyset, Path.Combine(path, nca.Filename), Path.Combine("OutFirm", "Program", nca.Nca.Header.TitleId.ToString("X16")));
+                    }
                 }
             }
         }

@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using LibHac;
 using LibHac.Common;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
 using LibHac.FsSystem.NcaUtils;
+using LibHac.Npdm;
 
 namespace Firmware_Extractor
 {
@@ -14,6 +16,21 @@ namespace Firmware_Extractor
         {
             public Nca Nca;
             public Validity[] Validities = new Validity[4];
+        }
+
+        public static string GetName(Nca nca)
+        {
+            if (nca.CanOpenSection(NcaSectionType.Code))
+            {
+                IFileSystem fs = nca.OpenFileSystem(NcaSectionType.Code, IntegrityCheckLevel.None);
+                Result r = fs.OpenFile(out IFile file, "/main.npdm".ToU8String(), OpenMode.Read);
+                if (r.IsSuccess())
+                {
+                    var npdm = new NpdmBinary(file.AsStream(), null);
+                    return npdm.TitleName;
+                }
+            }
+            return null;
         }
         public static void ExtractNca(Keyset keyset, string pathnca, string outdir)
         {
@@ -31,7 +48,7 @@ namespace Firmware_Extractor
                     FileSystemClient fs = new FileSystemClient(new StopWatchTimeSpanGenerator());
 
                     fs.Register("rom".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data));
-                    fs.Register("output".ToU8Span(), new LocalFileSystem(Path.Combine(outdir,"Rom")));
+                    fs.Register("output".ToU8Span(), new LocalFileSystem(Path.Combine(outdir, "Rom")));
 
                     FsUtils.CopyDirectoryWithProgress(fs, "rom:/".ToU8Span(), "output:/".ToU8Span(), logger: ctx.Logger).ThrowIfFailure();
 
@@ -44,12 +61,33 @@ namespace Firmware_Extractor
                     FileSystemClient fs = new FileSystemClient(new StopWatchTimeSpanGenerator());
 
                     fs.Register("code".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code));
-                    fs.Register("output".ToU8Span(), new LocalFileSystem(Path.Combine(outdir,"Code")));
+                    fs.Register("output".ToU8Span(), new LocalFileSystem(Path.Combine(outdir, "Code")));
 
                     FsUtils.CopyDirectoryWithProgress(fs, "code:/".ToU8Span(), "output:/".ToU8Span()).ThrowIfFailure();
                     // Unmount 
                     fs.Unmount("code".ToU8Span());
                     fs.Unmount("output".ToU8Span());
+                }
+                Console.WriteLine(nca.Header.TitleId.ToString("X16"));
+                // extract PKGs
+                if (nca.Header.ContentType != NcaContentType.Meta)
+                {
+                    if (nca.Header.TitleId.ToString("X16") == "0100000000000819" || nca.Header.TitleId.ToString() == "010000000000081A" || nca.Header.TitleId.ToString() == "010000000000081B" || nca.Header.TitleId.ToString() == "010000000000081C")
+                    {
+                        /* Extract Package1*/
+                        if (Directory.Exists(Path.Combine(outdir, "Rom", "a")))
+                        {
+                            //PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "a", "package1"), Path.Combine(outdir, "Package1", "Mariko"));
+                            //PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "nx", "package1"), Path.Combine(outdir, "Package1", "Erista"));
+                        }
+                        else
+                        {
+                            //PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "nx", "package1"), Path.Combine(outdir, "Package1", "Erista"));
+                        }
+
+                        /* Extract Package2 */
+                        PK21.ProcessPk21(keyset, Path.Combine(outdir, "Rom", "nx", "package2"), Path.Combine(outdir, "Package2"));
+                    }
                 }
 
                 IFileSystem OpenFileSystem(int index)
