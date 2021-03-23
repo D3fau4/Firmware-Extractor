@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.IO;
 using LibHac;
+using LibHac.Common.Keys;
 using LibHac.FsSystem;
 using LibHac.FsSystem.NcaUtils;
 
@@ -11,7 +12,7 @@ namespace Firmware_Extractor
     {
         public static void ProccesFw(string path, string keypath)
         {
-            Keyset keyset = ExternalKeyReader.ReadKeyFile(keypath);
+            KeySet keyset = ExternalKeyReader.ReadKeyFile(keypath);
             SwitchFs switchFs;
             var baseFs = new LocalFileSystem(path);
             switchFs = SwitchFs.OpenNcaDirectory(keyset, baseFs);

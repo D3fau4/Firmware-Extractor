@@ -2,6 +2,7 @@
 using System.IO;
 using LibHac;
 using LibHac.Common;
+using LibHac.Common.Keys;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
@@ -32,7 +33,7 @@ namespace Firmware_Extractor
             }
             return null;
         }
-        public static void ExtractNca(Keyset keyset, string pathnca, string outdir)
+        public static void ExtractNca(KeySet keyset, string pathnca, string outdir)
         {
             try
             {
@@ -79,12 +80,26 @@ namespace Firmware_Extractor
                             /* Extract Package1*/
                             if (Directory.Exists(Path.Combine(outdir, "Rom", "a")))
                             {
-                                //PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "a", "package1"), Path.Combine(outdir, "Package1", "Mariko"));
-                                //PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "nx", "package1"), Path.Combine(outdir, "Package1", "Erista"));
+                                try
+                                {
+                                    PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "a", "package1"), Path.Combine(outdir, "Package1", "Mariko"));
+                                    PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "nx", "package1"), Path.Combine(outdir, "Package1", "Erista"));
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("");
+                                }
                             }
                             else
                             {
-                                //PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "nx", "package1"), Path.Combine(outdir, "Package1", "Erista"));
+                                try
+                                {
+                                    PK11.ProcessPk11(keyset, Path.Combine(outdir, "Rom", "nx", "package1"), Path.Combine(outdir, "Package1", "Erista"));
+                                }
+                                catch(Exception e)
+                                {
+                                    Console.WriteLine("");
+                                }
                             }
 
                             /* Extract Package2 */
