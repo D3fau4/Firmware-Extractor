@@ -1,5 +1,4 @@
 using LibHac;
-using LibHac.Common.Keys;
 using LibHac.Fs;
 using LibHac.FsSystem;
 
@@ -97,7 +96,7 @@ namespace Firmware_Extractor
     internal class Context
     {
         public Options Options;
-        public KeySet Keyset;
+        public Keyset Keyset;
         public ProgressBar Logger;
         public FileSystemClient FsClient;
     }

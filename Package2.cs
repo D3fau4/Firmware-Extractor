@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using LibHac;
-using LibHac.Common.Keys;
 using LibHac.Boot;
 using LibHac.Fs;
 using LibHac.FsSystem;
@@ -11,7 +10,7 @@ namespace Firmware_Extractor
 {
     class PK21
     {
-        public static void ProcessPk21(KeySet keyset, string path, string output)
+        public static void ProcessPk21(Keyset keyset, string path, string output)
         {
             using (var file = new CachedStorage(new LocalStorage(path, FileAccess.Read), 0x4000, 4, false))
             {
